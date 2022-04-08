@@ -44,7 +44,7 @@ func main() {
 	fmt.Println("----------")
 
 	// get the reference to RoundTripCounter
-	// without the &, the value-based RoundTripCounter doesnt implement this interface
+	// without the &, we're missing method RoundTrip
 	var tripper http.RoundTripper = &RoundTripCounter{}
 	r, _ := http.NewRequest(http.MethodGet, "http://pluralsight.com", strings.NewReader("test call"))
 	_, _ = tripper.RoundTrip(r)
