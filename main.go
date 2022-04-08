@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strings"
 
@@ -78,7 +79,16 @@ func main() {
 	addExp3 := mathExpression3(MultiplyExp)
 	fmt.Println(addExp3(2, 1))
 
-	fmt.Printf("%f\n", double(3, 2, mathExpression3(SubtractExp)))
+	fmt.Printf("%v\n", double(3, 2, mathExpression3(SubtractExp)))
+
+	p2 := powerOfTwo()
+	value := p2()
+	println(value)
+
+	for i := 0; i < 10; i++ {
+		value = p2()
+		println(value)
+	}
 }
 
 type RoundTripCounter struct {
@@ -117,4 +127,12 @@ func mathExpression3(expr MathExpr) func(float64, float64) float64 {
 
 func double(f1, f2 float64, mathExpr func(float64, float64) float64) float64 {
 	return 2 * mathExpr(f1, f2)
+}
+
+func powerOfTwo() func() int64 {
+	x := 1.0
+	return func() int64 {
+		x += 1
+		return int64(math.Pow(x, 2))
+	}
 }
