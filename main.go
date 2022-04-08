@@ -48,6 +48,18 @@ func main() {
 	var tripper http.RoundTripper = &RoundTripCounter{}
 	r, _ := http.NewRequest(http.MethodGet, "http://pluralsight.com", strings.NewReader("test call"))
 	_, _ = tripper.RoundTrip(r)
+
+	// anonymous function self-invoked
+	func() {
+		fmt.Println("My first anonymous function.")
+	}()
+
+	// anonymous function set to a variable
+	a := func(name string) string {
+		fmt.Printf("Hello, Banana-%s\n", name)
+		return name
+	}
+	a("Will")
 }
 
 type RoundTripCounter struct {
