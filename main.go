@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
 
 	"github.com/tislais/go-functions/simplemath"
 )
@@ -23,4 +25,36 @@ func main() {
 	// spreading a slice in as arguments
 	total := simplemath.Sum(numbers...)
 	fmt.Printf("%f\n", total)
+
+	sv := simplemath.NewSemanticVersion(666, 420, 69)
+
+	// unnecessary because go does this for us
+	// p := &sv
+	// p.IncrementMinor()
+
+	fmt.Println(simplemath.StringFunction(sv))
+
+	// increment without pointer
+	sv = sv.IncrementMajor()
+
+	// increment with pointer
+	sv.IncrementMinor()
+
+	fmt.Println(sv.StringMethod())
+	fmt.Println("----------")
+
+	// get the reference to RoundTripCounter
+	// without the &, the value-based RoundTripCounter doesnt implement this interface
+	var tripper http.RoundTripper = &RoundTripCounter{}
+	r, _ := http.NewRequest(http.MethodGet, "http://pluralsight.com", strings.NewReader("test call"))
+	_, _ = tripper.RoundTrip(r)
+}
+
+type RoundTripCounter struct {
+	count int
+}
+
+func (rt *RoundTripCounter) RoundTrip(*http.Request) (*http.Response, error) {
+	rt.count += 1
+	return nil, nil
 }
