@@ -89,6 +89,24 @@ func main() {
 		value = p2()
 		println(value)
 	}
+
+	var funcs []func() int64
+
+	// add 10 functions to the slice
+	for i := 0; i < 10; i++ {
+		// clean variable - capturing it in scope
+		cleanI := i
+		funcs = append(funcs, func() int64 {
+			return int64(math.Pow(float64(cleanI), 2))
+		})
+	}
+
+	// loop through the funcs we created
+	// prints 100 - 10 times
+	// because i keeps getting updated
+	for _, f := range funcs {
+		fmt.Printf("funcs: %v\n", f())
+	}
 }
 
 type RoundTripCounter struct {
@@ -112,6 +130,7 @@ func mathExpression2() func(float64, float64) float64 {
 	return simplemath.Add
 }
 
+// return one of a variety of functions
 func mathExpression3(expr MathExpr) func(float64, float64) float64 {
 	switch expr {
 	case AddExp:
@@ -125,10 +144,12 @@ func mathExpression3(expr MathExpr) func(float64, float64) float64 {
 	}
 }
 
+// takes a function as a parameter
 func double(f1, f2 float64, mathExpr func(float64, float64) float64) float64 {
 	return 2 * mathExpr(f1, f2)
 }
 
+// maintains state
 func powerOfTwo() func() int64 {
 	x := 1.0
 	return func() int64 {
