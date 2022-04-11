@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 	"strings"
@@ -107,6 +109,40 @@ func main() {
 	for _, f := range funcs {
 		fmt.Printf("funcs: %v\n", f())
 	}
+
+	fmt.Println("---------- Control Flow ----------")
+	ReadSomething()
+}
+
+// common pattern of error checking
+func ReadSomething() error {
+	var r io.Reader = BadReader{errors.New("my nonsense reader")}
+
+	// error handling if you dont care about the value
+
+	// if _, err := r.Read([]byte("test something")); err != nil {
+	// 	fmt.Printf("An error occurred: %v\n", err)
+	// 	return err
+	// }
+
+	// error handling if you do care about the value
+	value, err := r.Read([]byte("test something"))
+	if err != nil {
+		fmt.Printf("An error occurred: %v\n", err)
+		return err
+	}
+	fmt.Println(value)
+
+	return nil
+}
+
+type BadReader struct {
+	err error
+}
+
+// grabbed return value from io.Reader
+func (br BadReader) Read(p []byte) (n int, err error) {
+	return -1, br.err
 }
 
 type RoundTripCounter struct {
