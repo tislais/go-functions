@@ -120,11 +120,11 @@ func main() {
 	// }
 
 	if err := ReadFullFile(); err != nil {
-		fmt.Println("something bad okurrred")
+		fmt.Printf("something bad okurrred: %s\n", err)
 	}
 }
 
-func ReadFullFile() error {
+func ReadFullFile() (err error) {
 	// using a reference to SimpleReader since our Read method uses a pointer
 	// to tie it to this interface
 	// var r io.Reader = &SimpleReader{}
@@ -132,6 +132,10 @@ func ReadFullFile() error {
 	var r io.ReadCloser = &SimpleReader{}
 	defer func() {
 		_ = r.Close()
+		if p := recover(); p != nil {
+			fmt.Println(p)
+			err = errors.New("a panic occurred but it is ok")
+		}
 	}()
 
 	defer func() {
@@ -139,12 +143,13 @@ func ReadFullFile() error {
 	}()
 
 	for {
-		value, err := r.Read([]byte("text that does nothing"))
+		value, readerErr := r.Read([]byte("text that does nothing"))
 		if err == io.EOF {
 			fmt.Println("finished reading file, breaking out of loop")
 			break
 		} else if err != nil {
-			return err
+			err = readerErr
+			return
 		}
 		fmt.Println(value)
 
