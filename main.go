@@ -195,6 +195,12 @@ type SimpleReader struct {
 }
 
 func (br *SimpleReader) Read(p []byte) (n int, err error) {
+	if br.count == 2 {
+		// when panic happens, the execution will stop
+		// and all deferred functions will be called.
+		// outputs the stack trace
+		panic("something catastrophic happened in the reader")
+	}
 	if br.count > 3 {
 		return 0, io.EOF
 	}
@@ -238,7 +244,7 @@ func mathExpression3(expr MathExpr) func(float64, float64) float64 {
 	case MultiplyExp:
 		return simplemath.Multiply
 	default:
-		return func(f float64, f2 float64) float64 { return 0 }
+		panic("an invalid math expression was used")
 	}
 }
 
