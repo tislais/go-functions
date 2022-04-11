@@ -111,11 +111,38 @@ func main() {
 	}
 
 	fmt.Println("---------- Control Flow ----------")
-	ReadSomething()
+	ReadSomethingBad()
+
+	// if err := ReadFullFile(); err == io.EOF {
+	// 	fmt.Println("successfully read file")
+	// } else if err != nil {
+	// 	fmt.Println("something bad okurrred")
+	// }
+
+	if err := ReadFullFile(); err != nil {
+		fmt.Println("something bad okurrred")
+	}
+}
+
+func ReadFullFile() error {
+	// using a reference to SimpleReader since our Read method uses a pointer
+	// to tie it to this interface
+	var r io.Reader = &SimpleReader{}
+	for {
+		value, err := r.Read([]byte("text that does nothing"))
+		if err == io.EOF {
+			fmt.Println("finished reading file, breaking out of loop")
+			break
+		} else if err != nil {
+			return err
+		}
+		fmt.Println(value)
+	}
+	return nil
 }
 
 // common pattern of error checking
-func ReadSomething() error {
+func ReadSomethingBad() error {
 	var r io.Reader = BadReader{errors.New("my nonsense reader")}
 
 	// error handling if you dont care about the value
@@ -143,6 +170,18 @@ type BadReader struct {
 // grabbed return value from io.Reader
 func (br BadReader) Read(p []byte) (n int, err error) {
 	return -1, br.err
+}
+
+type SimpleReader struct {
+	count int
+}
+
+func (br *SimpleReader) Read(p []byte) (n int, err error) {
+	if br.count > 3 {
+		return 0, errors.New("bad robot") //io.EOF
+	}
+	br.count += 1
+	return br.count, nil
 }
 
 type RoundTripCounter struct {
