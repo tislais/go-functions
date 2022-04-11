@@ -132,9 +132,11 @@ func ReadFullFile() (err error) {
 	var r io.ReadCloser = &SimpleReader{}
 	defer func() {
 		_ = r.Close()
-		if p := recover(); p != nil {
+		if p := recover(); p == errCatastrophicReader {
 			fmt.Println(p)
 			err = errors.New("a panic occurred but it is ok")
+		} else if p != nil {
+			panic("an unexpected error occurred and we do not want to recover")
 		}
 	}()
 
@@ -199,12 +201,14 @@ type SimpleReader struct {
 	count int
 }
 
+var errCatastrophicReader = errors.New("something catastrophic happened in the reader")
+
 func (br *SimpleReader) Read(p []byte) (n int, err error) {
 	if br.count == 2 {
 		// when panic happens, the execution will stop
 		// and all deferred functions will be called.
 		// outputs the stack trace
-		panic("something catastrophic happened in the reader")
+		panic(errors.New("another error"))
 	}
 	if br.count > 3 {
 		return 0, io.EOF
