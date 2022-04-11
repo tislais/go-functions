@@ -136,6 +136,7 @@ func ReadFullFile() (err error) {
 			fmt.Println(p)
 			err = errors.New("a panic occurred but it is ok")
 		} else if p != nil {
+			// so you can still panic even if you're in recovery mode
 			panic("an unexpected error occurred and we do not want to recover")
 		}
 	}()
