@@ -127,7 +127,17 @@ func main() {
 func ReadFullFile() error {
 	// using a reference to SimpleReader since our Read method uses a pointer
 	// to tie it to this interface
-	var r io.Reader = &SimpleReader{}
+	// var r io.Reader = &SimpleReader{}
+
+	var r io.ReadCloser = &SimpleReader{}
+	defer func() {
+		_ = r.Close()
+	}()
+
+	defer func() {
+		fmt.Println("before for-loop")
+	}()
+
 	for {
 		value, err := r.Read([]byte("text that does nothing"))
 		if err == io.EOF {
@@ -137,8 +147,16 @@ func ReadFullFile() error {
 			return err
 		}
 		fmt.Println(value)
+
 	}
+
+	defer func() {
+		fmt.Println("after for-loop")
+	}()
 	return nil
+
+	// multiple defers will be put on a stack FILO style
+	// so 'after' prints first, and so on..
 }
 
 // common pattern of error checking
@@ -178,10 +196,15 @@ type SimpleReader struct {
 
 func (br *SimpleReader) Read(p []byte) (n int, err error) {
 	if br.count > 3 {
-		return 0, errors.New("bad robot") //io.EOF
+		return 0, io.EOF
 	}
 	br.count += 1
 	return br.count, nil
+}
+
+func (sr *SimpleReader) Close() error {
+	fmt.Println("closing reader")
+	return nil
 }
 
 type RoundTripCounter struct {
